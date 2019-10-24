@@ -16,11 +16,17 @@ class ReservationMoviesController < ApplicationController
   # POST /reservation_movies
   def create
     @reservation_movie = ReservationMovie.new(reservation_movie_params)
-
-    if @reservation_movie.save
-      render json: @reservation_movie, status: :created, location: @reservation_movie
+    
+    @reservation = ReservationMovie.where(movie_id: @reservation_movie.movie_id, day_reservation: @reservation_movie.day_reservation)
+    msg = { :msg => 'Este día ya tiene todas las reservas posibles' }
+    if @reservation.length > 10
+      render :json => msg    
     else
-      render json: @reservation_movie.errors, status: :unprocessable_entity
+      if @reservation_movie.save
+        render json: @reservation_movie, status: :created, location: @reservation_movie 
+      else
+        render json: @reservation_movie.errors, status: :unprocessable_entity
+      end
     end
   end
 
